@@ -7,6 +7,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include "policy.h"
+#include <sys/system_properties.h>
 
 int is_selinux_enabled(void)
 {
@@ -15,6 +16,13 @@ int is_selinux_enabled(void)
 	char *bufp;
 	int enabled = 0;
 	security_context_t con;
+	char nfsModeValue[PROP_VALUE_MAX];
+	int ret;
+
+	ret = __system_property_get("ro.nfs.mode", nfsModeValue);
+	if((ret ==  3) && (strncmp(nfsModeValue, "yes", 3) == 0)) {
+		return 0;
+	}
 
 	/* init_selinuxmnt() gets called before this function. We
  	 * will assume that if a selinux file system is mounted, then
